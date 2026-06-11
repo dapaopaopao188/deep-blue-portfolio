@@ -1,2 +1,2522 @@
-# deep-blue-portfolio
+#深蓝色作品集
 深蓝重工：深渊协议 游戏设计作品集
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深蓝重工：深渊协议 | 游戏设计作品集</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --deep-blue: #0a0e17;
+            --mid-blue: #0f1729;
+            --ice-blue: #00d4ff;
+            --ice-glow: rgba(0, 212, 255, 0.3);
+            --ice-dim: rgba(0, 212, 255, 0.06);
+            --white: #e8f4f8;
+            --gray: #8a9aaa;
+            --dark-gray: #141b2d;
+            --accent: #00d4ff;
+        }
+        
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: #0a0e17;
+            color: #e8f4f8;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0e17; }
+        ::-webkit-scrollbar-thumb { background: var(--ice-blue); border-radius: 3px; }
+        
+        /* ===== 加载画面 ===== */
+        #loader {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(180deg, #050810 0%, #0a0e17 50%, #050810 100%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1.2s ease, visibility 1.2s ease;
+        }
+        
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        .loader-logo {
+            width: 160px;
+            height: 160px;
+            margin-bottom: 30px;
+            animation: logoPulse 2.5s ease-in-out infinite;
+        }
+        
+        .loader-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.4));
+        }
+        
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.2)); }
+            50% { transform: scale(1.06); filter: drop-shadow(0 0 50px rgba(0, 212, 255, 0.6)); }
+        }
+        
+        .loader-title {
+            font-size: 2.2rem;
+            font-weight: 300;
+            letter-spacing: 10px;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #e8f4f8, var(--ice-blue), #e8f4f8);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        
+        .loader-subtitle {
+            font-size: 0.9rem;
+            color: #8a9aaa;
+            letter-spacing: 6px;
+            margin-bottom: 40px;
+        }
+        
+        .loader-bar-container {
+            width: 360px;
+            height: 2px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .loader-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--ice-blue), #80e8ff);
+            border-radius: 2px;
+            animation: loadProgress 2.5s ease-out forwards;
+            box-shadow: 0 0 15px var(--ice-blue);
+        }
+        
+        @keyframes loadProgress {
+            0% { width: 0%; }
+            50% { width: 65%; }
+            80% { width: 90%; }
+            100% { width: 100%; }
+        }
+        
+        .loader-percent {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--ice-blue);
+            font-family: 'Courier New', monospace;
+            letter-spacing: 3px;
+        }
+        
+        .loader-hint {
+            margin-top: 24px;
+            font-size: 0.7rem;
+            color: rgba(138, 154, 170, 0.4);
+            letter-spacing: 3px;
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        /* ===== 粒子背景 ===== */
+        #particles-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* ===== 导航栏 ===== */
+        nav {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            transition: all 0.4s ease;
+            background: transparent;
+        }
+        
+        nav.scrolled {
+            background: rgba(10, 14, 23, 0.92);
+            backdrop-filter: blur(20px);
+            padding: 10px 50px;
+            box-shadow: 0 2px 30px rgba(0, 212, 255, 0.08);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.06);
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .nav-logo img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+        }
+        
+        .nav-logo span {
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: #e8f4f8;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: #8a9aaa;
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            position: relative;
+            text-transform: uppercase;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--ice-blue);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 8px var(--ice-blue);
+        }
+        
+        .nav-links a:hover {
+            color: var(--ice-blue);
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* ===== 通用动画类 ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-right.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.85);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-scale.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+        .stagger-5 { transition-delay: 0.5s; }
+        .stagger-6 { transition-delay: 0.6s; }
+        
+        /* ===== HERO 封面页 ===== */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .hero-video {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            filter: brightness(0.5) saturate(0.8);
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(180deg, 
+                rgba(10, 22, 40, 0.4) 0%, 
+                rgba(10, 22, 40, 0.6) 40%, 
+                rgba(10, 22, 40, 0.85) 80%,
+                rgba(245, 247, 250, 1) 100%);
+            z-index: 1;
+        }
+        
+        .hero-vignette {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.2);
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 900px;
+            padding: 0 30px;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 28px;
+            border: 1px solid rgba(0, 212, 255, 0.35);
+            border-radius: 30px;
+            font-size: 0.75rem;
+            letter-spacing: 5px;
+            color: var(--ice-blue);
+            margin-bottom: 30px;
+            background: rgba(0, 212, 255, 0.08);
+            animation: fadeInDown 1s ease 0.5s both;
+            text-transform: uppercase;
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 300;
+            letter-spacing: 10px;
+            margin-bottom: 16px;
+            line-height: 1.15;
+            animation: fadeInUp 1s ease 0.8s both;
+        }
+        
+        .hero h1 .highlight {
+            color: var(--ice-blue);
+            font-weight: 600;
+            text-shadow: 0 0 50px rgba(0, 212, 255, 0.4);
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hero-subtitle {
+            font-size: 1rem;
+            color: #8a9aaa;
+            letter-spacing: 8px;
+            margin-bottom: 30px;
+            animation: fadeInUp 1s ease 1.1s both;
+        }
+        
+        .hero-divider {
+            width: 60px;
+            height: 1px;
+            background: var(--ice-blue);
+            margin: 0 auto 30px;
+            box-shadow: 0 0 10px var(--ice-blue);
+            animation: fadeInUp 1s ease 1.3s both;
+        }
+        
+        .hero-desc {
+            font-size: 1rem;
+            color: rgba(232, 244, 248, 0.65);
+            line-height: 1.9;
+            max-width: 560px;
+            margin: 0 auto 40px;
+            animation: fadeInUp 1s ease 1.5s both;
+        }
+        
+        .hero-meta {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 50px;
+            animation: fadeInUp 1s ease 1.7s both;
+        }
+        
+        .hero-meta-item {
+            text-align: center;
+        }
+        
+        .hero-meta-item .label {
+            font-size: 0.65rem;
+            color: #8a9aaa;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        
+        .hero-meta-item .value {
+            font-size: 0.9rem;
+            color: #e8f4f8;
+            letter-spacing: 2px;
+        }
+        
+        .hero-cta {
+            display: inline-flex;
+            gap: 20px;
+            animation: fadeInUp 1s ease 1.9s both;
+        }
+        
+        .btn-primary {
+            padding: 14px 36px;
+            background: linear-gradient(135deg, var(--ice-blue), #0088aa);
+            color: #0a0e17;
+            font-weight: 600;
+            letter-spacing: 3px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.85rem;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.35);
+        }
+        
+        .btn-secondary {
+            padding: 14px 36px;
+            background: transparent;
+            color: var(--ice-blue);
+            font-weight: 600;
+            letter-spacing: 3px;
+            border: 1px solid var(--ice-blue);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.85rem;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.06);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.15);
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            animation: bounce 2.5s ease-in-out infinite;
+            z-index: 10;
+        }
+        
+        .scroll-indicator span {
+            font-size: 0.65rem;
+            letter-spacing: 4px;
+            color: #8a9aaa;
+            text-transform: uppercase;
+        }
+        
+        .scroll-line {
+            width: 1px;
+            height: 50px;
+            background: linear-gradient(180deg, var(--ice-blue), transparent);
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(12px); }
+        }
+        
+        /* ===== 章节通用 ===== */
+        section {
+            position: relative;
+            padding: 100px 50px;
+            z-index: 2;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+        
+        .section-number {
+            display: inline-block;
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            color: var(--ice-blue);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .section-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 4px;
+            color: var(--ice-blue);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+        
+        .section-title {
+            font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .section-desc {
+            font-size: 0.95rem;
+            color: #8a9aaa;
+            max-width: 650px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+        
+        .section-divider {
+            width: 40px;
+            height: 1px;
+            background: var(--ice-blue);
+            margin: 20px auto 0;
+            box-shadow: 0 0 8px var(--ice-blue);
+        }
+        
+        /* ===== 02 概念介绍 ===== */
+        .concept-section {
+            background: linear-gradient(180deg, #0a0e17, #141b2d);
+        }
+        
+        .concept-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: center;
+        }
+        
+        .concept-visual {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 212, 255, 0.05);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .concept-visual img {
+            width: 100%;
+            display: block;
+            transition: transform 0.6s ease;
+        }
+        
+        .concept-visual:hover img {
+            transform: scale(1.05);
+        }
+        
+        .concept-visual::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+        
+        .concept-content h3 {
+            font-size: 1.4rem;
+            font-weight: 400;
+            margin-bottom: 24px;
+            color: var(--ice-blue);
+            letter-spacing: 3px;
+        }
+        
+        .concept-content p {
+            font-size: 0.95rem;
+            color: rgba(232, 244, 248, 0.7);
+            line-height: 2;
+            margin-bottom: 20px;
+        }
+        
+        .concept-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .concept-tag {
+            padding: 8px 18px;
+            background: rgba(0, 212, 255, 0.06);
+            border: 1px solid rgba(0, 212, 255, 0.05);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--ice-blue);
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .concept-tag:hover {
+            background: rgba(0, 212, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .usp-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 30px;
+        }
+        
+        .usp-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px 20px;
+            background: rgba(0, 212, 255, 0.06);
+            border-left: 2px solid var(--ice-blue);
+            border-radius: 0 8px 8px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .usp-item:hover {
+            background: rgba(0, 212, 255, 0.06);
+            transform: translateX(6px);
+        }
+        
+        .usp-item .usp-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 212, 255, 0.06);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        
+        .usp-item h4 {
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            color: #e8f4f8;
+        }
+        
+        .usp-item p {
+            font-size: 0.8rem;
+            color: #8a9aaa;
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+        
+        /* ===== 03 世界观与故事 ===== */
+        .world-section {
+            background: linear-gradient(180deg, #141b2d, #0a0e17);
+        }
+        
+        .world-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        .world-image {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .world-image img {
+            width: 100%;
+            display: block;
+            transition: transform 0.6s ease;
+        }
+        
+        .world-image:hover img {
+            transform: scale(1.05);
+        }
+        
+        .world-image::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+        
+        .world-image .scan-line {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--ice-blue), transparent);
+            animation: scanMove 3s ease-in-out infinite;
+            opacity: 0.5;
+            z-index: 2;
+        }
+        
+        @keyframes scanMove {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        
+        .world-text h3 {
+            font-size: 1.4rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            color: var(--ice-blue);
+            letter-spacing: 2px;
+        }
+        
+        .world-text p {
+            font-size: 0.92rem;
+            color: rgba(232, 244, 248, 0.7);
+            line-height: 2;
+            margin-bottom: 16px;
+        }
+        
+        .world-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 30px;
+        }
+        
+        .stat-card {
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.04);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            background: rgba(0, 212, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.25);
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--ice-blue);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: #8a9aaa;
+            letter-spacing: 2px;
+            margin-top: 6px;
+        }
+        
+        .character-showcase {
+            max-width: 1300px;
+            margin: 60px auto 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        
+        .character-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+        
+        .character-card:hover {
+            border-color: rgba(0, 212, 255, 0.25);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.06);
+            transform: translateY(-5px);
+        }
+        
+        .character-card img {
+            width: 100%;
+            display: block;
+        }
+        
+        .character-card .char-info {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            padding: 40px 24px 24px;
+            background: linear-gradient(transparent, rgba(5, 8, 16, 0.95));
+        }
+        
+        .character-card .char-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+        }
+        
+        .character-card .char-info p {
+            font-size: 0.8rem;
+            color: #8a9aaa;
+        }
+        
+        /* ===== 04 核心玩法 ===== */
+        .gameplay-section {
+            background: linear-gradient(180deg, #0a0e17, #141b2d);
+        }
+        
+        .flow-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            position: relative;
+        }
+        
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            position: relative;
+            padding: 16px 0;
+        }
+        
+        .flow-step:nth-child(even) {
+            flex-direction: row-reverse;
+            text-align: right;
+        }
+        
+        .flow-step:nth-child(even) .flow-text {
+            text-align: right;
+        }
+        
+        .flow-node {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.08));
+            border: 2px solid var(--ice-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.15);
+            position: relative;
+            z-index: 2;
+            animation: nodeGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes nodeGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.15); }
+            50% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.35); }
+        }
+        
+        .flow-text {
+            flex: 1;
+            padding: 18px 28px;
+            background: rgba(0, 212, 255, 0.06);
+            border: 1px solid rgba(0, 212, 255, 0.05);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .flow-text:hover {
+            background: rgba(0, 212, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+        
+        .flow-text h4 {
+            font-size: 1rem;
+            margin-bottom: 6px;
+            color: var(--ice-blue);
+            letter-spacing: 2px;
+        }
+        
+        .flow-text p {
+            font-size: 0.85rem;
+            color: #8a9aaa;
+            line-height: 1.6;
+        }
+        
+        .flow-connector {
+            position: absolute;
+            left: 35px;
+            top: 70px;
+            width: 2px;
+            height: calc(100% - 70px);
+            background: linear-gradient(180deg, var(--ice-blue), transparent);
+            opacity: 0.25;
+            z-index: 1;
+        }
+        
+        .flow-step:nth-child(even) .flow-connector {
+            left: auto;
+            right: 35px;
+        }
+        
+        .gameplay-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1200px;
+            margin: 60px auto 0;
+        }
+        
+        .gameplay-card {
+            padding: 30px;
+            background: rgba(0, 212, 255, 0.06);
+            border: 1px solid rgba(0, 212, 255, 0.05);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .gameplay-card:hover {
+            background: rgba(0, 212, 255, 0.06);
+            border-color: rgba(0, 212, 255, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .gameplay-card .gf-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 212, 255, 0.06);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 18px;
+        }
+        
+        .gameplay-card h4 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        
+        .gameplay-card p {
+            font-size: 0.85rem;
+            color: #8a9aaa;
+            line-height: 1.7;
+        }
+        
+        /* ===== 05 美术风格 ===== */
+        .art-section {
+            background: linear-gradient(180deg, #141b2d, #0a0e17);
+        }
+        
+        .art-showcase {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        .art-main {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 212, 255, 0.05);
+            margin-bottom: 40px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        }
+        
+        .art-main img {
+            width: 100%;
+            display: block;
+        }
+        
+        .art-main .art-overlay {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            padding: 60px 40px 40px;
+            background: linear-gradient(transparent, rgba(5, 8, 16, 0.95));
+        }
+        
+        .art-main .art-overlay h3 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+        
+        .art-main .art-overlay p {
+            font-size: 0.9rem;
+            color: #8a9aaa;
+            max-width: 600px;
+            line-height: 1.7;
+        }
+        
+        .art-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .art-keyword {
+            padding: 10px 20px;
+            background: rgba(0, 212, 255, 0.06);
+            border: 1px solid rgba(0, 212, 255, 0.05);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--ice-blue);
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .art-keyword:hover {
+            background: rgba(0, 212, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+        
+        .art-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .art-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 212, 255, 0.05);
+            transition: all 0.4s ease;
+        }
+        
+        .art-item:hover {
+            border-color: rgba(0, 212, 255, 0.25);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.08);
+            transform: translateY(-4px);
+        }
+        
+        .art-item img {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16/10;
+            object-fit: cover;
+        }
+        
+        .art-item .art-caption {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            padding: 30px 16px 16px;
+            background: linear-gradient(transparent, rgba(5, 8, 16, 0.9));
+        }
+        
+        .art-item .art-caption h4 {
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            letter-spacing: 2px;
+        }
+        
+        .art-item .art-caption p {
+            font-size: 0.75rem;
+            color: #8a9aaa;
+        }
+        
+        /* ===== 06 UI设计系统 ===== */
+        .ui-system-section {
+            background: linear-gradient(180deg, #0a0e17, #141b2d);
+        }
+        
+        .ui-system-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .ui-system-card {
+            padding: 35px;
+            background: rgba(0, 212, 255, 0.06);
+            border: 1px solid rgba(0, 212, 255, 0.05);
+            border-radius: 12px;
+            transition: all 0.4s ease;
+        }
+        
+        .ui-system-card:hover {
+            background: rgba(0, 212, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.06);
+        }
+        
+        .ui-system-card h3 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            color: var(--ice-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ui-system-card h3 .icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 212, 255, 0.06);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        
+        .color-palette {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        
+        .color-swatch {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.1);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-swatch .color-label {
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #8a9aaa;
+            white-space: nowrap;
+            letter-spacing: 1px;
+        }
+        
+        .typography-demo {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .type-row {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.08);
+        }
+        
+        .type-row .type-size {
+            font-size: 0.7rem;
+            color: #8a9aaa;
+            width: 50px;
+            flex-shrink: 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .type-row .type-sample {
+            flex: 1;
+        }
+        
+        .type-row .type-label {
+            font-size: 0.7rem;
+            color: #8a9aaa;
+            letter-spacing: 1px;
+        }
+        
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 14px;
+        }
+        
+        .icon-demo {
+            width: 64px;
+            height: 64px;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .icon-demo img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+        }
+        
+        .icon-demo:hover {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.4);
+            transform: scale(1.08);
+        }
+        
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .icon-name {
+            font-size: 0.75rem;
+            color: #8a9aaa;
+            text-align: center;
+            white-space: nowrap;
+            letter-spacing: 1px;
+        }
+        
+        .component-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .comp-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: rgba(0, 212, 255, 0.06);
+            border-radius: 6px;
+        }
+        
+        .comp-row .comp-label {
+            font-size: 0.75rem;
+            color: #8a9aaa;
+            width: 80px;
+            flex-shrink: 0;
+        }
+        
+        /* ===== 07 UI界面展示 ===== */
+        .ui-showcase-section {
+            background: linear-gradient(180deg, #141b2d, #0a0e17);
+        }
+        
+        .ui-showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        .ui-showcase-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            transition: all 0.4s ease;
+            background: #0f1729;
+        }
+        
+        .ui-showcase-item:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.06);
+            transform: translateY(-6px);
+        }
+        
+        .ui-showcase-item img {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+        
+        .ui-showcase-item .ui-caption {
+            padding: 20px 20px 16px;
+            background: linear-gradient(transparent, rgba(5, 8, 16, 0.8));
+        }
+        
+        .ui-showcase-item .ui-caption h4 {
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+        }
+        
+        .ui-showcase-item .ui-caption p {
+            font-size: 0.8rem;
+            color: #8a9aaa;
+            line-height: 1.5;
+        }
+        
+        .ui-showcase-item .ui-number {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 212, 255, 0.15);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--ice-blue);
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* ===== 08-10 演示 ===== */
+        .demo-section {
+            background: linear-gradient(180deg, #0a0e17, #141b2d);
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        
+        .demo-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            transition: all 0.4s ease;
+            background: #0f1729;
+        }
+        
+        .demo-item:hover {
+            border-color: rgba(0, 212, 255, 0.25);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.08);
+        }
+        
+        .demo-item video {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+        
+        .demo-item .demo-caption {
+            padding: 20px;
+            background: rgba(10, 22, 40, 0.6);
+        }
+        
+        .demo-item .demo-caption h4 {
+            font-size: 1rem;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+        }
+        
+        .demo-item .demo-caption p {
+            font-size: 0.8rem;
+            color: #8a9aaa;
+            line-height: 1.5;
+        }
+        
+        .demo-item .demo-tag {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            padding: 6px 14px;
+            background: rgba(0, 212, 255, 0.15);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            color: var(--ice-blue);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        /* ===== 页脚 ===== */
+        footer {
+            background: #050810;
+            padding: 70px 50px 30px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            border-top: 1px solid rgba(0, 212, 255, 0.06);
+        }
+        
+        .footer-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            opacity: 0.5;
+            animation: logoPulse 5s ease-in-out infinite;
+        }
+        
+        .footer-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        footer h3 {
+            font-size: 1.3rem;
+            font-weight: 300;
+            letter-spacing: 6px;
+            margin-bottom: 12px;
+        }
+        
+        footer p {
+            font-size: 0.8rem;
+            color: #8a9aaa;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-line {
+            width: 50px;
+            height: 1px;
+            background: var(--ice-blue);
+            margin: 0 auto 30px;
+            box-shadow: 0 0 10px var(--ice-blue);
+        }
+        
+        .footer-copy {
+            font-size: 0.7rem;
+            color: rgba(138, 154, 170, 0.3);
+            letter-spacing: 2px;
+        }
+        
+        /* ===== 响应式 ===== */
+        @media (max-width: 1024px) {
+            .concept-grid,
+            .world-content,
+            .character-showcase,
+            .ui-system-grid,
+            .ui-showcase-grid,
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .gameplay-features,
+            .art-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .flow-step,
+            .flow-step:nth-child(even) {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .flow-step:nth-child(even) .flow-text {
+                text-align: center;
+            }
+            
+            section {
+                padding: 70px 30px;
+            }
+            
+            nav {
+                padding: 15px 30px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-meta {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .hero-cta {
+                flex-direction: column;
+            }
+            
+            .loader-bar-container {
+                width: 280px;
+            }
+            
+            .world-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                letter-spacing: 4px;
+            }
+            
+            .hero-subtitle {
+                letter-spacing: 4px;
+            }
+            
+            .icon-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+            
+            .icon-demo {
+                width: 56px;
+                height: 56px;
+            }
+            
+            .icon-demo img {
+                width: 36px;
+                height: 36px;
+            }
+        }
+        
+        /* ===== 特殊效果 ===== */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+            color: var(--ice-blue);
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .hex-pattern {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='rgba(0,212,255,0.03)' stroke-width='1'/%3E%3C/svg%3E");
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .grain-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+    
+        /* ===== Lightbox 图片放大 ===== */
+        .lightbox-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(5, 8, 16, 0.95);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .lightbox-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .lightbox-overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .lightbox-overlay.active img {
+            transform: scale(1);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 30px; right: 40px;
+            font-size: 40px;
+            color: #e8f4f8;
+            cursor: pointer;
+            z-index: 10001;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .lightbox-close:hover { opacity: 1; }
+        .clickable-image {
+            cursor: zoom-in;
+            transition: transform 0.2s ease;
+        }
+        .clickable-image:hover {
+            transform: scale(1.02);
+        }
+    
+    </style>
+</head>
+<body>
+    <!-- 胶片颗粒层 -->
+    <div class="grain-overlay"></div>
+    
+    <!-- 粒子画布 -->
+    <canvas id="particles-canvas"></canvas>
+    
+    <!-- 加载画面 -->
+    <div id="loader">
+        <video class="loader-video-bg" autoplay loop muted playsinline style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:0; opacity:0.6;">
+            <source src="videos/加载图标.mp4" type="video/mp4" />
+        </video>
+        <div style="position:absolute; bottom:80px; left:0; width:100%; z-index:1; display:flex; flex-direction:column; align-items:center;">
+            <div class="loader-bar-container">
+                <div class="loader-bar"></div>
+            </div>
+            <div class="loader-percent" id="loader-percent">0%</div>
+            <div class="loader-hint">正在同步深渊数据...</div>
+        </div>
+    </div>
+    
+    <!-- 导航 -->
+    <nav id="navbar">
+        <span style="font-size:18px; font-weight:600; letter-spacing:4px; color:#e8f4f8;">DEEP BLUE</span>
+        <ul class="nav-links">
+            <li><a href="#concept">概念</a></li>
+            <li><a href="#world">世界观</a></li>
+            <li><a href="#gameplay">玩法</a></li>
+            <li><a href="#art">美术</a></li>
+            <li><a href="#ui-system">UI系统</a></li>
+            <li><a href="#ui-showcase">UI展示</a></li>
+            <li><a href="#demo">演示</a></li>
+        </ul>
+    </nav>
+    
+    <!-- 01 封面页 HERO -->
+    <section class="hero" id="hero">
+        <video class="hero-video" autoplay loop muted playsinline preload="auto">
+            <source src="videos/首页背景.mp4" type="video/mp4" />
+        </video>
+        <div class="hero-overlay"></div>
+        <div class="hero-vignette"></div>
+        <div class="hero-content">
+            <div class="hero-badge">游戏设计作品集</div>
+            <h1>深蓝重工<br><span class="highlight" style="font-size:0.6em; opacity:0.8;">深渊协议</span></h1>
+            <p class="hero-subtitle">DEEP BLUE HEAVY INDUSTRY : ABYSS PROTOCOL</p>
+            <div class="hero-divider"></div>
+            <p class="hero-desc">
+                当海洋成为天空，巨物即是神明。
+            </p>
+            <div class="hero-meta">
+                <div class="hero-meta-item">
+                    <div class="label">项目类型</div>
+                    <div class="value">开放世界动作 RPG</div>
+                </div>
+                <div class="hero-meta-item">
+                    <div class="label">设计者</div>
+                    <div class="value">游戏设计作品集</div>
+                </div>
+                <div class="hero-meta-item">
+                    <div class="label">完成时间</div>
+                    <div class="value">2026.06</div>
+                </div>
+            </div>
+            <div class="hero-cta">
+                <a href="#concept" class="btn-primary">进入作品</a>
+                <a href="#demo" class="btn-secondary">观看演示</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>SCROLL</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+    
+    <!-- 02 概念介绍 -->
+    <section class="concept-section" id="concept">
+        <div class="hex-pattern"></div>
+        <div class="section-header reveal">
+            <div class="section-number">02</div>
+            <div class="section-tag">Concept</div>
+            <h2 class="section-title">核心概念</h2>
+            <p class="section-desc">
+                 elevator pitch 式表达——用最精炼的语言讲清楚这是一款什么样的游戏
+            </p>
+            <div class="section-divider"></div>
+        </div>
+        <div class="concept-grid">
+            <div class="concept-visual reveal-left">
+                <img class="clickable-image" src="images/img-001.jpg" alt="游戏概念" onclick="openLightbox('images/img-001.jpg')">
+            </div>
+            <div class="concept-content reveal-right">
+                <h3>「当海洋成为天空」</h3>
+                <p>
+                    <strong>深蓝重工：深渊协议</strong>是一款后启示录风格的开放世界动作 RPG。玩家扮演深蓝重工指挥官，率领装甲战士深入被淹没的废土世界，狩猎巨型异变生命体「渊兽」，收集稀有资源，重建人类文明最后的堡垒。
+                </p>
+                <p>
+                    游戏融合了<strong>无缝大世界探索</strong>、<strong>实时动作战斗</strong>与<strong>深度角色养成</strong>三大核心体验。在冰雪覆盖的废墟与深海遗迹之间，每一次出击都是未知的冒险，每一场战斗都是技巧与策略的较量。
+                </p>
+                <div class="usp-list">
+                    <div class="usp-item">
+                        <img src="images/img-002.jpg" alt="巨物狩猎" style="width:48px; height:48px; object-fit:contain; flex-shrink:0;">
+                        <div>
+                            <h4>巨物狩猎</h4>
+                            <p>面对体型数十倍的渊兽，利用部位破坏与地形策略取胜</p>
+                        </div>
+                    </div>
+                    <div class="usp-item">
+                        <img src="images/img-003.jpg" alt="流派构建" style="width:48px; height:48px; object-fit:contain; flex-shrink:0;">
+                        <div>
+                            <h4>流派构建</h4>
+                            <p>四系武器 + 四技能位自由搭配，同一角色多种战斗风格</p>
+                        </div>
+                    </div>
+                    <div class="usp-item">
+                        <img src="images/img-004.jpg" alt="基地经营" style="width:48px; height:48px; object-fit:contain; flex-shrink:0;">
+                        <div>
+                            <h4>基地经营</h4>
+                            <p>3D 可互动基地，设施升级解锁新配方、新区域与新剧情</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="concept-tags">
+                    <span class="concept-tag">开放世界</span>
+                    <span class="concept-tag">动作 RPG</span>
+                    <span class="concept-tag">科幻废土</span>
+                    <span class="concept-tag">巨物狩猎</span>
+                    <span class="concept-tag">角色养成</span>
+                    <span class="concept-tag">基地建造</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+
+    <!-- 游戏预告 -->
+    <section class="trailer-section" id="trailer">
+        <div class="hex-pattern"></div>
+        <div class="section-header reveal">
+            <div class="section-number">03</div>
+            <div class="section-tag">Trailer</div>
+            <h2 class="section-title">游戏预告</h2>
+            <p class="section-desc">
+                完整战斗场景演示，展现游戏核心体验
+            </p>
+            <div class="section-divider"></div>
+        </div>
+        </div>
+        <div class="demo-trailer" style="margin-top:60px; text-align:center;">
+            <h3 style="font-size:28px; color:#e8f4f8; margin-bottom:20px; letter-spacing:2px;">游戏预告</h3>
+            <div class="trailer-video" style="max-width:900px; margin:0 auto; border-radius:12px; overflow:hidden; border:2px solid rgba(0,212,255,0.3); box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+                <video controls poster="images/img-005.jpg" style="width:100%; display:block;">
+                    <source src="videos/游戏预告.mp4" type="video/mp4">
+                </video>
+            </div>
+            <p style="font-size:18px; color:#8a9aaa; margin-top:16px;">点击播放 · 完整战斗场景演示</p>
+        </div>
+    </section>
+    <!-- 07 UI界面展示 -->
+    <section class="ui-showcase-section" id="ui-showcase">
+        <div class="hex-pattern"></div>
+        <div class="section-header reveal">
+            <div class="section-number">04</div>
+            <div class="section-tag">UI Showcase</div>
+            <h2 class="section-title">UI 界面展示</h2>
+            <p class="section-desc">
+                精选核心界面的高保真设计稿，配合布局逻辑与交互细节说明
+            </p>
+            <div class="section-divider"></div>
+        </div>
+        <div class="ui-showcase-grid">
+            <div class="ui-showcase-item reveal stagger-1">
+                <div class="ui-number">01</div>
+                <img class="clickable-image" src="images/img-006.png" alt="主界面" onclick="openLightbox('images/img-006.png')">
+                <div class="ui-caption">
+                    <h4>主界面 · 基地全景</h4>
+                    <p>3D 角色展示 + 环形功能入口 + 实时数据面板，所有核心功能一键触达</p>
+                </div>
+            </div>
+            <div class="ui-showcase-item reveal stagger-2">
+                <div class="ui-number">02</div>
+                <img class="clickable-image" src="images/img-007.jpg" alt="地图界面" onclick="openLightbox('images/img-007.jpg')">
+                <div class="ui-caption">
+                    <h4>战略沙盘 · 区域选择</h4>
+                    <p>全息地形投影 + 据点标记 + 风险等级指示，战略层与战术层无缝切换</p>
+                </div>
+            </div>
+            <div class="ui-showcase-item reveal stagger-3">
+                <div class="ui-number">03</div>
+                <img class="clickable-image" src="images/img-008.jpg" alt="地图场景" onclick="openLightbox('images/img-008.jpg')">
+                <div class="ui-caption">
+                    <h4>大世界 · 场景探索</h4>
+                    <p>越肩视角 + 小地图导航 + 任务追踪 + 技能轮盘，沉浸感与功能性兼顾</p>
+                </div>
+            </div>
+            <div class="ui-showcase-item reveal stagger-4">
+                <div class="ui-number">04</div>
+                <img class="clickable-image" src="images/img-009.png" alt="对话界面" onclick="openLightbox('images/img-009.png')">
+                <div class="ui-caption">
+                    <h4>剧情对话 · 角色交互</h4>
+                    <p>立绘展示 + 实时场景背景 + 状态信息面板，分支选项影响剧情走向</p>
+                </div>
+            </div>
+            <div class="ui-showcase-item reveal stagger-5">
+                <div class="ui-number">05</div>
+                <img class="clickable-image" src="images/img-010.png" alt="人物系统" onclick="openLightbox('images/img-010.png')">
+                <div class="ui-caption">
+                    <h4>干员档案 · 角色养成</h4>
+                    <p>属性面板 + 技能树 + 装备栏 + 羁绊系统，深度养成一目了然</p>
+                </div>
+            </div>
+            <div class="ui-showcase-item reveal stagger-6">
+                <div class="ui-number">06</div>
+                <img class="clickable-image" src="images/img-011.png" alt="武器系统" onclick="openLightbox('images/img-011.png')">
+                <div class="ui-caption">
+                    <h4>武器库 · APV 光刃</h4>
+                    <p>四系武器对比 + 属性雷达图 + 锻造预览，流派构建直观清晰</p>
+                </div>
+            </div>
+            <div class="ui-showcase-item reveal stagger-1">
+                <div class="ui-number">07</div>
+                <img class="clickable-image" src="images/img-005.jpg" alt="战斗画面" onclick="openLightbox('images/img-005.jpg')">
+                <div class="ui-caption">
+                    <h4>实时战斗 · HUD 界面</h4>
+                    <p>血条/能量/技能冷却 + 部位破坏指示 + 连击计数，信息层级分明</p>
+                </div>
+            </div>
+            <div class="ui-showcase-item reveal stagger-2">
+                <div class="ui-number">08</div>
+                <img class="clickable-image" src="images/img-012.jpg" alt="结算画面" onclick="openLightbox('images/img-012.jpg')">
+                <div class="ui-caption">
+                    <h4>战斗结算 · 评分系统</h4>
+                    <p>C~S 级动态评分 + 掉落展示 + 经验结算，正向反馈驱动重复挑战</p>
+                </div>
+            </div>
+            <div class="ui-showcase-item reveal stagger-3">
+                <div class="ui-number">09</div>
+                <img class="clickable-image" src="images/img-001.jpg" alt="加载画面" onclick="openLightbox('images/img-001.jpg')">
+                <div class="ui-caption">
+                    <h4>加载画面 · 沉浸过渡</h4>
+                    <p>动态背景 + 进度指示 + 世界观小贴士，等待时间也是叙事体验</p>
+                </div>
+            </div>
+            <div class="ui-showcase-item reveal stagger-4">
+                <div class="ui-number">10</div>
+                <img class="clickable-image" src="images/img-013.jpg" alt="探索发现" onclick="openLightbox('images/img-013.jpg')">
+                <div class="ui-caption">
+                    <h4>探索发现 · 事件弹窗</h4>
+                    <p>动态事件触发 + 渊兽图鉴 + 废土档案收集，拼凑完整世界观</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- 08-10 演示 -->
+    <section class="demo-section" id="demo">
+        <div class="hex-pattern"></div>
+        <div class="section-header reveal">
+            <div class="section-number">05</div>
+            <div class="section-tag">Demo</div>
+            <h2 class="section-title">演示视频</h2>
+            <p class="section-desc">
+                直观演示操作流程，展现专业态度——从登录载入到战斗狩猎的完整体验
+            </p>
+            <div class="section-divider"></div>
+        </div>
+        <div class="demo-grid">
+            <div class="demo-item reveal stagger-1">
+                <span class="demo-tag">登录载入</span>
+                <video autoplay loop muted playsinline poster="images/img-001.jpg">
+                    <source src="videos/登录载入界面.mp4" type="video/mp4">
+                </video>
+                <div class="demo-caption">
+                    <h4>登录与载入界面</h4>
+                    <p>公司 Logo 动画 + 深渊数据同步 + 沉浸式加载过渡</p>
+                </div>
+            </div>
+            <div class="demo-item reveal stagger-2">
+                <span class="demo-tag">角色选择</span>
+                <video autoplay loop muted playsinline poster="images/img-014.jpg">
+                    <source src="videos/选角演示.mp4" type="video/mp4">
+                </video>
+                <div class="demo-caption">
+                    <h4>选角界面演示</h4>
+                    <p>3D 角色展示 + 属性预览 + 入场动画</p>
+                </div>
+            </div>
+            
+            <div class="demo-item reveal stagger-4">
+                <span class="demo-tag">对话系统</span>
+                <video autoplay loop muted playsinline poster="images/img-009.png">
+                    <source src="videos/对话界面.mp4" type="video/mp4">
+                </video>
+                <div class="demo-caption">
+                    <h4>剧情对话演示</h4>
+                    <p>角色立绘 + 实时场景 + 分支选项交互</p>
+                </div>
+            </div>
+            <div class="demo-item reveal stagger-5">
+                <span class="demo-tag">战斗演示</span>
+                <video autoplay loop muted playsinline poster="images/img-005.jpg">
+                    <source src="videos/战斗演示1.mp4" type="video/mp4">
+                </video>
+                <div class="demo-caption">
+                    <h4>战斗动作演示 I</h4>
+                    <p>角色挥动光剑攻击怪物，怪物口器张开受击反馈</p>
+                </div>
+            </div>
+            <div class="demo-item reveal stagger-6">
+                <span class="demo-tag">战斗演示</span>
+                <video autoplay loop muted playsinline poster="images/img-005.jpg">
+                    <source src="videos/战斗演示3.mp4" type="video/mp4">
+                </video>
+                <div class="demo-caption">
+                    <h4>战斗动作演示 II</h4>
+                    <p>大招释放画面，人物劈砍怪物并有受击特效</p>
+                </div>
+            </div>
+            <div class="demo-item reveal stagger-1">
+                <span class="demo-tag">战斗演示</span>
+                <video autoplay loop muted playsinline poster="images/img-005.jpg">
+                    <source src="videos/战斗动作演示.mp4" type="video/mp4">
+                </video>
+                <div class="demo-caption">
+                    <h4>战斗动作演示 III</h4>
+                    <p>模仿终末地干员释放大招，人物一击重劈，怪物受击并击飞</p>
+                </div>
+            </div>
+            <div class="demo-item reveal stagger-1">
+                <span class="demo-tag">地图探索</span>
+                <video autoplay loop muted playsinline poster="images/img-008.jpg">
+                    <source src="videos/地图演示1.mp4" type="video/mp4">
+                </video>
+                <div class="demo-caption">
+                    <h4>地图高速移动</h4>
+                    <p>保留所有 UI 元素，主角在地图中间高速移动探索</p>
+                </div>
+            </div>
+            <div class="demo-item reveal stagger-2">
+                <span class="demo-tag">目标锁定</span>
+                <video autoplay loop muted playsinline poster="images/img-005.jpg">
+                    <source src="videos/锁定目标演示.mp4" type="video/mp4">
+                </video>
+                <div class="demo-caption">
+                    <h4>锁定目标演示</h4>
+                    <p>怪物自然蠕动行动，UI发现危险目标，科技感UI闪烁预警</p>
+                </div>
+            </div>
+            <div class="demo-item reveal stagger-3">
+                <span class="demo-tag">BOSS战</span>
+                <video autoplay loop muted playsinline poster="images/img-005.jpg">
+                    <source src="videos/BOSS战入场动画.mp4" type="video/mp4">
+                </video>
+                <div class="demo-caption">
+                    <h4>BOSS战入场动画</h4>
+                    <p>高质感二次元3D动画，运镜与动作流畅，BOSS登场震撼演出</p>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    <!-- 03 世界观与故事 -->
+    <section class="world-section" id="world">
+        <div class="hex-pattern"></div>
+        <div class="section-header reveal">
+            <div class="section-number">06</div>
+            <div class="section-tag">World & Story</div>
+            <h2 class="section-title">世界观与故事</h2>
+            <p class="section-desc">
+                图文并茂地铺陈游戏背景、核心冲突与角色设定，构建完整的叙事框架
+            </p>
+            <div class="section-divider"></div>
+        </div>
+        <div class="world-content">
+            <div class="world-image reveal-left">
+                <img class="clickable-image" src="images/img-015.jpg" alt="废土地图" onclick="openLightbox('images/img-015.jpg')">
+                <div class="scan-line"></div>
+            </div>
+            <div class="world-text reveal-right">
+                <h3>冰封废土 · 深渊纪元</h3>
+                <p>
+                    后启示录时代，地球海平面异常上升，大陆 90% 被淹没。旧文明覆灭，幸存人类依托深蓝重工的深海科技在残存陆地上建立据点。海洋中诞生的巨型异变生命体「渊兽」既是灾难，也是新能量的来源。
+                </p>
+                <p>
+                    极地废土曾是人类最繁华的海岸线。如今，锈蚀的风力发电机与坍塌的摩天大楼在冰雪中沉默，远处海面上浮现的巨型触手提醒着每一个幸存者——这个世界已经不属于人类。
+                </p>
+                <p>
+                    深蓝重工作为横跨军工、能源、生物科技的垄断巨企，建立了「前哨基地」作为人类最后的堡垒。玩家将扮演指挥官，率领以艾丽可亚为首的装甲战士，深入未知区域。
+                </p>
+                <div class="world-stats">
+                    <div class="stat-card reveal-scale stagger-1">
+                        <div class="stat-number">90%</div>
+                        <div class="stat-label">大陆淹没率</div>
+                    </div>
+                    <div class="stat-card reveal-scale stagger-2">
+                        <div class="stat-number">4</div>
+                        <div class="stat-label">可探索区域</div>
+                    </div>
+                    <div class="stat-card reveal-scale stagger-3">
+                        <div class="stat-number">∞</div>
+                        <div class="stat-label">深渊回廊层数</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="character-showcase">
+            <div class="character-card reveal-left">
+                <img class="clickable-image" src="images/img-014.jpg" alt="艾丽可亚" onclick="openLightbox('images/img-014.jpg')">
+                <div class="char-info">
+                    <h4>艾丽可亚 · Aelicuya</h4>
+                    <p>六星远程输出 · 代号 AGENT_AETLA · 深蓝重工特遣队</p>
+                </div>
+            </div>
+            <div class="character-card reveal-right">
+                <img class="clickable-image" src="images/img-013.jpg" alt="角色展示" onclick="openLightbox('images/img-013.jpg')">
+                <div class="char-info">
+                    <h4>深渊生物·ABYSS</h4>
+                    <p>危险性的未知生物体</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- 05 美术风格 -->
+    <section class="art-section" id="art">
+        <div class="hex-pattern"></div>
+        <div class="section-header reveal">
+            <div class="section-number">07</div>
+            <div class="section-tag">Art Direction</div>
+            <h2 class="section-title">美术风格</h2>
+            <p class="section-desc">
+                展示风格参考图，提炼色彩、构图、光影等关键词，定义统一的视觉语言
+            </p>
+            <div class="section-divider"></div>
+        </div>
+        <div class="art-showcase">
+            <div class="art-main reveal-scale">
+                <img class="clickable-image" src="images/img-005.jpg" alt="战斗画面" onclick="openLightbox('images/img-005.jpg')">
+                <div class="art-overlay">
+                    <h3>千瞳之须 · 区域 Boss 战</h3>
+                    <p>在冰封的高塔遗迹中，艾丽可亚独自面对巨型渊兽。利用完美闪避触发时缓，攻击触手上的紫色眼睛造成部位破坏与硬直。</p>
+                    <div class="art-keywords">
+                        <span class="art-keyword">冷色调</span>
+                        <span class="art-keyword">巨物压迫感</span>
+                        <span class="art-keyword">科幻废土</span>
+                        <span class="art-keyword">冰蓝高光</span>
+                        <span class="art-keyword">体积雾</span>
+                        <span class="art-keyword">动态光影</span>
+                    </div>
+                </div>
+            </div>
+            <div class="art-grid">
+                <div class="art-item reveal stagger-1">
+                    <img class="clickable-image" src="images/img-008.jpg" alt="地图场景" onclick="openLightbox('images/img-008.jpg')">
+                    <div class="art-caption">
+                        <h4>极地废土</h4>
+                        <p>冰雪覆盖的废墟，远处巨型触手若隐若现</p>
+                    </div>
+                </div>
+                <div class="art-item reveal stagger-2">
+                    <img class="clickable-image" src="images/img-007.jpg" alt="探索发现" onclick="openLightbox('images/img-007.jpg')">
+                    <div class="art-caption">
+                        <h4>深海遗迹</h4>
+                        <p>沉没都市的残垣断壁，神秘能量结晶脉动</p>
+                    </div>
+                </div>
+                <div class="art-item reveal stagger-3">
+                    <img class="clickable-image" src="images/img-012.jpg" alt="结算画面" onclick="openLightbox('images/img-012.jpg')">
+                    <div class="art-caption">
+                        <h4>战斗结算</h4>
+                        <p>全息投影风格 UI，数据可视化呈现</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- 06 UI设计系统 -->
+    <section class="ui-system-section" id="ui-system">
+        <div class="hex-pattern"></div>
+        <div class="section-header reveal">
+            <div class="section-number">08</div>
+            <div class="section-tag">UI Design System</div>
+            <h2 class="section-title">UI 设计系统</h2>
+            <p class="section-desc">
+                详细阐述色彩方案、字体层级、图标规范与控件组件库，体现 UI 设计的系统性
+            </p>
+            <div class="section-divider"></div>
+        </div>
+        <div class="ui-system-grid">
+            <div class="ui-system-card reveal stagger-1">
+                <h3><span class="icon">🎨</span>色彩方案</h3>
+                <div class="color-palette">
+                    <div class="color-swatch" style="background:#00d4ff;">
+                        <span class="color-label">冰蓝</span>
+                    </div>
+                    <div class="color-swatch" style="background:#0a0e17;">
+                        <span class="color-label">深空</span>
+                    </div>
+                    <div class="color-swatch" style="background:#141b2d;">
+                        <span class="color-label">暗灰</span>
+                    </div>
+                    <div class="color-swatch" style="background:#e8f4f8;">
+                        <span class="color-label">霜白</span>
+                    </div>
+                    <div class="color-swatch" style="background:#8a9aaa;">
+                        <span class="color-label">钢灰</span>
+                    </div>
+                </div>
+                <p style="font-size:0.95rem;color:#8a9aaa;line-height:1.8;">
+                    以冰蓝 (#00d4ff) 为主色调，象征深海科技与希望之光。深空黑 (#0a0e17) 作为背景基底，营造沉浸感。霜白用于关键文字，钢灰用于辅助信息。
+                </p>
+            </div>
+            <div class="ui-system-card reveal stagger-2">
+                <h3><span class="icon">🔤</span>字体层级</h3>
+                <div class="typography-demo">
+                    <div class="type-row">
+                        <span class="type-size">48px</span>
+                        <span class="type-sample" style="font-size:1.5rem;letter-spacing:4px;">页面标题</span>
+                        <span class="type-label">H1 · 轻量字重</span>
+                    </div>
+                    <div class="type-row">
+                        <span class="type-size">28px</span>
+                        <span class="type-sample" style="font-size:1.1rem;letter-spacing:2px;">章节标题</span>
+                        <span class="type-label">H2 · 常规字重</span>
+                    </div>
+                    <div class="type-row">
+                        <span class="type-size">18px</span>
+                        <span class="type-sample" style="font-size:0.95rem;">正文内容</span>
+                        <span class="type-label">Body · 常规字重</span>
+                    </div>
+                    <div class="type-row">
+                        <span class="type-size">12px</span>
+                        <span class="type-sample" style="font-size:0.75rem;letter-spacing:2px;">标签注释</span>
+                        <span class="type-label">Caption · 大写间距</span>
+                    </div>
+                </div>
+            </div>
+            <div class="ui-system-card reveal stagger-3">
+                <h3><span class="icon">🔷</span>图标规范</h3>
+                <div class="icon-grid">
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-002.jpg" alt="主业"></div>
+                        <span class="icon-name">主业</span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-016.jpg" alt="探索"></div>
+                        <span class="icon-name">探索</span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-017.jpg" alt="背包"></div>
+                        <span class="icon-name">背包</span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-003.jpg" alt="海洋探测"></div>
+                        <span class="icon-name">海洋探测</span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-004.jpg" alt="装甲"></div>
+                        <span class="icon-name">装甲</span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-018.jpg" alt="医疗"></div>
+                        <span class="icon-name">医疗</span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-019.png" alt="地图"></div>
+                        <span class="icon-name">地图</span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-020.png" alt="成就"></div>
+                        <span class="icon-name">成就</span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-021.jpg" alt="副武器"></div>
+                        <span class="icon-name">副武器</span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-022.png" alt="宠物"></div>
+                        <span class="icon-name">宠物</span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-023.png" alt="防御系统"></div>
+                        <span class="icon-name">防御系统</span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon-demo"><img src="images/img-024.jpg" alt="主武器"></div>
+                        <span class="icon-name">主武器</span>
+                    </div>
+                </div>
+                <p style="font-size:0.9rem;color:#8a9aaa;line-height:1.7;margin-top:20px;">
+                    六边形外框 + 冰蓝发光描边，统一 24px/36px/48px 三档尺寸。所有图标采用线性风格，保持视觉一致性。
+                </p>
+            </div>
+            <div class="ui-system-card reveal stagger-4">
+                <h3><span class="icon">🧩</span>控件组件</h3>
+                <div class="component-preview">
+                    <div class="comp-row">
+                        <span class="comp-label">主按钮</span>
+                        <a class="btn-primary" style="padding:8px 20px;font-size:0.75rem;">确认出击</a>
+                    </div>
+                    <div class="comp-row">
+                        <span class="comp-label">次按钮</span>
+                        <a class="btn-secondary" style="padding:8px 20px;font-size:0.75rem;">返回基地</a>
+                    </div>
+                    <div class="comp-row">
+                        <span class="comp-label">标签</span>
+                        <span class="concept-tag" style="font-size:0.7rem;">稀有</span>
+                        <span class="concept-tag" style="font-size:0.7rem;background:rgba(255,100,100,0.1);border-color:rgba(255,100,100,0.2);color:#ff6464;">危险</span>
+                    </div>
+                    <div class="comp-row">
+                        <span class="comp-label">进度条</span>
+                        <div style="flex:1;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">
+                            <div style="width:65%;height:100%;background:linear-gradient(90deg,var(--ice-blue),#0088aa);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- 04 核心玩法 -->
+    <section class="gameplay-section" id="gameplay">
+        <div class="hex-pattern"></div>
+        <div class="section-header reveal">
+            <div class="section-number">09</div>
+            <div class="section-tag">Core Gameplay</div>
+            <h2 class="section-title">核心玩法</h2>
+            <p class="section-desc">
+                可视化玩家的核心目标、操作反馈与成长路径，清晰呈现游戏的核心体验闭环
+            </p>
+            <div class="section-divider"></div>
+        </div>
+        <div class="flow-container">
+            <div class="flow-diagram">
+                <div class="flow-step reveal" style="display:flex; align-items:center; gap:20px; margin-bottom:24px;">
+                    <div class="flow-arrow" style="font-size:28px; color:#00d4ff; font-weight:bold;">→</div>
+                    <div class="flow-text" style="flex:1;">
+                        <h4 style="font-size:22px; color:#e8f4f8; margin-bottom:8px;">基地中枢 · 整备</h4>
+                        <p style="font-size:18px; color:#8a9aaa; line-height:1.6;">管理队员、配置编队、升级设施、接取任务。基地是玩家的大本营，所有冒险的起点与归宿。</p>
+                    </div>
+                </div>
+                <div class="flow-step reveal" style="display:flex; align-items:center; gap:20px; margin-bottom:24px;">
+                    <div class="flow-arrow" style="font-size:28px; color:#00d4ff; font-weight:bold;">→</div>
+                    <div class="flow-text" style="flex:1;">
+                        <h4 style="font-size:22px; color:#e8f4f8; margin-bottom:8px;">沙盘选区 · 出击</h4>
+                        <p style="font-size:18px; color:#8a9aaa; line-height:1.6;">在全息沙盘选择目的地：极地废土、前哨基地外围、未知深海或高塔核心。不同区域风险与收益成正比。</p>
+                    </div>
+                </div>
+                <div class="flow-step reveal" style="display:flex; align-items:center; gap:20px; margin-bottom:24px;">
+                    <div class="flow-arrow" style="font-size:28px; color:#00d4ff; font-weight:bold;">→</div>
+                    <div class="flow-text" style="flex:1;">
+                        <h4 style="font-size:22px; color:#e8f4f8; margin-bottom:8px;">大世界 · 探索</h4>
+                        <p style="font-size:18px; color:#8a9aaa; line-height:1.6;">进入无缝 3D 场景自由移动，采集资源、触发动态事件、遭遇敌人。无强制线性路径，想去哪就去哪。</p>
+                    </div>
+                </div>
+                <div class="flow-step reveal" style="display:flex; align-items:center; gap:20px; margin-bottom:24px;">
+                    <div class="flow-arrow" style="font-size:28px; color:#00d4ff; font-weight:bold;">→</div>
+                    <div class="flow-text" style="flex:1;">
+                        <h4 style="font-size:22px; color:#e8f4f8; margin-bottom:8px;">遭遇战 · 狩猎</h4>
+                        <p style="font-size:18px; color:#8a9aaa; line-height:1.6;">实时动作战斗，利用武器特性与技能组合击败敌人。面对 Boss 时，观察攻击模式，寻找部位破坏时机。</p>
+                    </div>
+                </div>
+                <div class="flow-step reveal" style="display:flex; align-items:center; gap:20px; margin-bottom:24px;">
+                    <div class="flow-arrow" style="font-size:28px; color:#00d4ff; font-weight:bold;">→</div>
+                    <div class="flow-text" style="flex:1;">
+                        <h4 style="font-size:22px; color:#e8f4f8; margin-bottom:8px;">结算 · 成长</h4>
+                        <p style="font-size:18px; color:#8a9aaa; line-height:1.6;">根据表现获得 C~S 级评分，获取经验、金币、深蓝结晶与武器蓝图。S 级评价解锁额外稀有奖励。</p>
+                    </div>
+                </div>
+                <div class="flow-step reveal" style="display:flex; align-items:center; gap:20px; margin-bottom:24px;">
+                    <div class="flow-arrow" style="font-size:28px; color:#00d4ff; font-weight:bold;">↻</div>
+                    <div class="flow-text" style="flex:1;">
+                        <h4 style="font-size:22px; color:#e8f4f8; margin-bottom:8px;">养成 · 再出发</h4>
+                        <p style="font-size:18px; color:#8a9aaa; line-height:1.6;">消耗素材培养角色属性、锻造新武器、扩建基地设施。实力提升后挑战更高难度区域，循环往复。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="gameplay-features">
+            <div class="gameplay-card reveal stagger-1">
+                
+                <h4>操作体系</h4>
+                <p>鼠标左键普攻/重击，Q/E/R 释放技能，Space 闪避冲刺。支持键鼠与手柄双模式，技能轮盘可自定义布局。</p>
+            </div>
+            <div class="gameplay-card reveal stagger-2">
+                
+                <h4>开放探索</h4>
+                <p>无缝大地图自由奔跑、攀爬、滑翔。小地图实时导航，任务追踪支持多目标并行，探索进度全局同步。</p>
+            </div>
+            <div class="gameplay-card reveal stagger-3">
+                
+                <h4>部位破坏</h4>
+                <p>大型渊兽拥有可破坏部位，击破紫色眼睛可造成硬直与额外伤害。不同武器对部位破坏效率各异，鼓励流派搭配。</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-logo">
+            <img class="clickable-image" src="images/公司图标3.png" alt="深蓝重工" onclick="openLightbox('images/公司图标3.png')">
+        </div>
+        <h3>DEEP BLUE HEAVY INDUSTRY</h3>
+        <p>深蓝重工 · 深渊协议 · 游戏设计作品集</p>
+        <div class="footer-line"></div>
+        <p class="footer-copy">开放世界动作 RPG 概念设计 · 2026</p>
+    </footer>
+    
+    <script>
+        // ===== 加载画面 =====
+        const loader = document.getElementById('loader');
+        const loaderPercent = document.getElementById('loader-percent');
+        let loadProgress = 0;
+        
+        const loadInterval = setInterval(() => {
+            loadProgress += Math.random() * 12;
+            if (loadProgress >= 100) {
+                loadProgress = 100;
+                clearInterval(loadInterval);
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                }, 400);
+            }
+            loaderPercent.textContent = Math.floor(loadProgress) + '%';
+        }, 180);
+        
+        // ===== 粒子系统 =====
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.25;
+                this.speedY = (Math.random() - 0.5) * 0.25;
+                this.opacity = Math.random() * 0.4 + 0.1;
+                this.life = Math.random() * 100 + 100;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life--;
+                
+                if (this.life <= 0 || this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 212, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+        
+        for (let i = 0; i < 80; i++) {
+            particles.push(new Particle());
+        }
+        
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            
+            // 连线
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(0, 212, 255, ${0.06 * (1 - dist / 120)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+        
+        // ===== 导航栏滚动效果 =====
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 80) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // ===== 平滑滚动 =====
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+        
+        // ===== Intersection Observer 滚动触发动画 =====
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -60px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // ===== 视频懒加载 =====
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target;
+                if (entry.isIntersecting) {
+                    video.play().catch(() => {});
+                } else {
+                    video.pause();
+                }
+            });
+        }, { threshold: 0.2 });
+        
+        document.querySelectorAll('.demo-item video').forEach(video => {
+            videoObserver.observe(video);
+        });
+
+        // ===== 确保背景视频自动播放 =====
+        document.querySelectorAll('video[autoplay]').forEach(video => {
+            video.muted = true;
+            video.setAttribute('playsinline', '');
+            const play = () => video.play().catch(() => {});
+            play();
+            video.addEventListener('loadeddata', play);
+        });
+    
+        // ===== Lightbox 功能 =====
+        function openLightbox(src) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', function(e) {
+    如果 (e.key === 'Escape') 关闭灯箱();
+        });
+    
+    </script>
+
+    <!-- 灯箱 -->
+    <div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightbox-img" class="clickable-image" src="" alt="">
+    </div>
+    
+</body>
+</html>
